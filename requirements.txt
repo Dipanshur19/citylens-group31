@@ -1,0 +1,22 @@
+# CityLens AI Hackathon 2026 - Group 31 - KPI Group 4
+# Core
+ultralytics>=8.3.0          # YOLO11 / YOLOv8 training + inference
+torch>=2.1.0
+torchvision>=0.16.0
+
+# Dataset download
+roboflow>=1.1.40            # pull Roboflow datasets via API
+kaggle>=1.6.0              # pull Kaggle datasets
+
+# Data / analytics
+opencv-python>=4.9.0
+numpy>=1.26.0
+pandas>=2.1.0
+matplotlib>=3.8.0
+pyyaml>=6.0
+tqdm>=4.66.0
+scikit-learn>=1.4.0
+
+# Video handling for accident / flicker detection
+imageio>=2.34.0
+imageio-ffmpeg>=0.4.9
