@@ -33,10 +33,16 @@ def rf_download(workspace, project, location, fmt="yolov8", prefer=1):
             tried.append(v)
     raise RuntimeError(f"Could not download {workspace}/{project}; tried {tried}")
 
-# ECO Group fire & smoke (~10k images) — the main dataset
+# ECO Group fire & smoke (~10k images) — the MAIN dataset (required)
 ds_eco = rf_download("eco-group", "fire-smoke-yvnrc", str(DATA / "eco"))
-# Wildfire smoke (737 images) — adds outdoor/wildfire variety
-ds_wild = rf_download("public", "wildfire-smoke", str(DATA / "wildfire"))
+
+# Wildfire smoke (737 images) — OPTIONAL extra variety. Skip gracefully if the
+# slug/version isn't reachable so it never blocks training.
+try:
+    ds_wild = rf_download("public", "wildfire-smoke", str(DATA / "wildfire"))
+    print("wildfire dataset downloaded OK")
+except Exception as e:
+    print("Skipping wildfire dataset (training on ECO alone is fine):", e)
 
 # %% CELL 3 — merge datasets into ONE with unified classes {0:fire, 1:smoke} ---
 # Different datasets number their classes differently, so we remap every label
@@ -78,7 +84,11 @@ def remap_dataset(src_root: Path):
             (out_lbl / f"{src_root.name}_{img.stem}.txt").write_text("\n".join(new_lines))
 
 remap_dataset(DATA / "eco")
-remap_dataset(DATA / "wildfire")
+# only merge the wildfire set if it actually downloaded
+if (DATA / "wildfire" / "data.yaml").exists():
+    remap_dataset(DATA / "wildfire")
+else:
+    print("wildfire set not present — merging ECO only")
 
 # write the unified data.yaml
 data_yaml = MERGED / "data.yaml"
