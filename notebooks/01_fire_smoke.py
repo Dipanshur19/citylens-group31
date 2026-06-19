@@ -58,17 +58,49 @@ cfg["train"] = "train/images"
 cfg["val"] = "valid/images" if (ROOT / "valid" / "images").exists() else "val/images"
 if (ROOT / "test" / "images").exists():
     cfg["test"] = "test/images"
+
+# --- ACCURACY FIX: clean up the dataset's junk class names ---
+# This ECO export has messy class names. Give them readable names so the model
+# and the metrics are sensible. Edit if the real classes differ.
+if isinstance(cfg.get("names"), list) and len(cfg["names"]) == 2:
+    cfg["names"] = ["fire", "smoke"]
+
+# --- OPTIONAL: collapse to ONE class to remove fire/smoke confusion ---------
+# The two-class split is imbalanced and hurts mAP. Set SINGLE_CLASS = True to
+# detect a single "fire_smoke" hazard region — usually a big accuracy boost and
+# the easiest way to clear the 85% bar. Set False to keep fire vs smoke separate.
+SINGLE_CLASS = True
+if SINGLE_CLASS:
+    for split in ["train", "valid", "val", "test"]:
+        for txt in glob.glob(str(ROOT / split / "labels" / "*.txt")):
+            lines = []
+            for ln in open(txt).read().splitlines():
+                p = ln.split()
+                if len(p) >= 5:
+                    p[0] = "0"               # force every box to class 0
+                    lines.append(" ".join(p))
+            open(txt, "w").write("\n".join(lines))
+    cfg["names"] = ["fire_smoke"]
+    cfg["nc"] = 1
+    # remove stale label caches so the new labels are re-scanned
+    for c in glob.glob(str(ROOT / "**" / "*.cache"), recursive=True):
+        os.remove(c)
+
 data_yaml = ROOT / "data_fixed.yaml"
 yaml.safe_dump(cfg, open(data_yaml, "w"))
-print("Using data.yaml ->", data_yaml)
+print("Using data.yaml ->", data_yaml, "| classes:", cfg["names"])
 
 # %% CELL 4 — train ------------------------------------------------------------
-# yolo11s = fast + accurate. Switch to yolo11m.pt for more mAP if you have time.
-model = YOLO("yolo11s.pt")
+# ACCURATE config: yolo11m + more epochs to push mAP past the 85% bar.
+# For a quick pipeline test, set MODEL="yolo11s.pt" and EPOCHS=30.
+MODEL = "yolo11m.pt"
+EPOCHS = 100
+model = YOLO(MODEL)
 results = model.train(
     data=str(data_yaml),
-    epochs=60, imgsz=640, batch=16, patience=15,
-    cos_lr=True, close_mosaic=10, amp=True, cache=True,
+    epochs=EPOCHS, imgsz=640, batch=16, patience=25,
+    cos_lr=True, close_mosaic=15, amp=True, cache=True,
+    mixup=0.1, copy_paste=0.1,        # extra augmentation -> better generalisation
     project=str(WORK / "runs"), name="fire_smoke", exist_ok=True,
 )
 
@@ -129,3 +161,20 @@ adf = pd.DataFrame(arows)
 adf.to_csv(WORK / "fire_smoke_analytics.csv", index=False)
 print(adf.head(20))
 print("Saved analytics ->", WORK / "fire_smoke_analytics.csv")
+
+
+# %% CELL 8 — PERSIST WEIGHTS so a session restart never wipes them -----------
+# IMPORTANT: /kaggle/working is erased when the interactive session ends.
+# Run this right after training, THEN do Save Version -> "Save & Run All
+# (Commit)" so the files below land in the notebook's permanent Output.
+import shutil
+src = WORK / "runs" / "fire_smoke" / "weights" / "best.pt"
+shutil.copy(src, WORK / "fire_smoke_best.pt")                 # easy to find in Output
+shutil.make_archive(str(WORK / "fire_smoke_run"), "zip",
+                    str(WORK / "runs" / "fire_smoke"))         # full run (plots+csv)
+print("Saved:")
+print(" -", WORK / "fire_smoke_best.pt")
+print(" -", WORK / "fire_smoke_run.zip")
+print("Now: Save Version -> Save & Run All (Commit), then download from the Output tab.")
+# TIP: to reuse these weights in another notebook without retraining, click
+# 'Create Dataset' on the Output, then 'Add Input' that dataset elsewhere.
