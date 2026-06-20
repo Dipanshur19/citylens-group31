@@ -26,10 +26,17 @@ import numpy as np
 
 
 def find_mask(masks_dir: Path, stem: str):
-    for ext in (".png", ".jpg", ".jpeg", ".bmp", ".tif", ".tiff"):
-        p = masks_dir / f"{stem}{ext}"
-        if p.exists():
-            return p
+    import re
+    # images are 'fgbg000000', masks are 'mask000000' (same number)
+    candidates = [stem, stem.replace("fgbg", "mask")]
+    m = re.search(r"(\d+)", stem)
+    if m:
+        candidates.append(f"mask{m.group(1)}")
+    for cand in candidates:
+        for ext in (".png", ".jpg", ".jpeg", ".bmp", ".tif", ".tiff"):
+            p = masks_dir / f"{cand}{ext}"
+            if p.exists():
+                return p
     return None
 
 
@@ -39,7 +46,8 @@ def mask_to_boxes(mask_path: Path, min_area_frac: float = 0.001):
     if m is None:
         return []
     h, w = m.shape[:2]
-    _, binm = cv2.threshold(m, 0, 255, cv2.THRESH_BINARY)
+    # threshold at 127 (not 0) so JPG compression artifacts near edges are ignored
+    _, binm = cv2.threshold(m, 127, 255, cv2.THRESH_BINARY)
     contours, _ = cv2.findContours(binm, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     min_area = min_area_frac * w * h
     boxes = []
