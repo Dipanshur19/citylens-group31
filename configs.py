@@ -34,7 +34,10 @@ CONFIGS = {
     # ----------------------------------------------------------------- 20% ---
     "collapsed_trees": {
         "task": "detect",
+        # Try each candidate in order; use the FIRST that downloads successfully.
+        "try_alternatives": True,
         "datasets": [
+            {"type": "roboflow", "workspace": "fallen-object", "project": "road-debris-iya6s-a4hkr"},
             {"type": "roboflow", "workspace": "overflow-thaap", "project": "fallen-trees-with-palms"},
         ],
         "single_class": None,

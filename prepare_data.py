@@ -149,18 +149,41 @@ def prepare_detect(cfg: dict) -> Path:
     base.mkdir(parents=True, exist_ok=True)
 
     roots = []
-    for i, ds in enumerate(cfg["datasets"]):
-        dest = base / f"src{i}"
-        if (Path(dest) / "data.yaml").exists():
-            print(f"[skip-download] {dest} already present, reusing it")
-            loc = str(dest)
-        elif ds["type"] == "roboflow":
-            loc = download_roboflow(ds["workspace"], ds["project"], str(dest))
-        elif ds["type"] == "kaggle":
-            loc = download_kaggle(ds["slug"], str(dest))
-        else:
-            raise ValueError(ds["type"])
-        roots.append(Path(loc))
+    if cfg.get("try_alternatives"):
+        # use the FIRST dataset that downloads successfully
+        last_err = None
+        for ds in cfg["datasets"]:
+            key = (ds.get("project") or ds.get("slug", "src")).replace("/", "_")
+            dest = base / key
+            try:
+                if (Path(dest) / "data.yaml").exists():
+                    print(f"[alt] reusing already-downloaded {dest}")
+                    loc = str(dest)
+                elif ds["type"] == "roboflow":
+                    loc = download_roboflow(ds["workspace"], ds["project"], str(dest))
+                else:
+                    loc = download_kaggle(ds["slug"], str(dest))
+                roots.append(Path(loc))
+                print(f"[alt] SUCCESS using {ds}")
+                break
+            except Exception as e:
+                last_err = e
+                print(f"[alt] failed {ds.get('project') or ds.get('slug')}: {e}")
+        if not roots:
+            raise RuntimeError(f"All alternative datasets failed. Last error: {last_err}")
+    else:
+        for i, ds in enumerate(cfg["datasets"]):
+            dest = base / f"src{i}"
+            if (Path(dest) / "data.yaml").exists():
+                print(f"[skip-download] {dest} already present, reusing it")
+                loc = str(dest)
+            elif ds["type"] == "roboflow":
+                loc = download_roboflow(ds["workspace"], ds["project"], str(dest))
+            elif ds["type"] == "kaggle":
+                loc = download_kaggle(ds["slug"], str(dest))
+            else:
+                raise ValueError(ds["type"])
+            roots.append(Path(loc))
 
     # multi-dataset merge (e.g. streetlights)
     if cfg.get("unified"):
