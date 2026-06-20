@@ -36,14 +36,19 @@ def download_roboflow(workspace: str, project: str, dest: str, fmt="yolov8", pre
     proj = rf.workspace(workspace).project(project)
     order = [prefer] + [v for v in range(1, 12) if v != prefer]
     tried = []
+    last_err = None
     for v in order:
         try:
             ds = proj.version(v).download(fmt, location=dest)
             print(f"[roboflow] {workspace}/{project} v{v} -> {dest}")
             return ds.location
-        except Exception:
+        except Exception as e:
             tried.append(v)
-    raise RuntimeError(f"Could not download {workspace}/{project}; tried {tried}")
+            last_err = e
+    raise RuntimeError(
+        f"Could not download {workspace}/{project}; tried versions {tried}. "
+        f"Last error: {type(last_err).__name__}: {last_err}"
+    )
 
 
 def download_kaggle(slug: str, dest: str):
