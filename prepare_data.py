@@ -137,6 +137,9 @@ def _merge_detect(roots: list[Path], dest: Path, merge_names: dict, unified: lis
                         p[0] = str(unified.index(mapped))
                         out_lines.append(" ".join(p))
                 (ol / f"{tag}_{img.stem}.txt").write_text("\n".join(out_lines))
+    # drop any stale label caches so the freshly-written labels are re-scanned
+    for c in glob.glob(str(dest / "**" / "*.cache"), recursive=True):
+        os.remove(c)
     return _write_yaml(dest, unified)
 
 
@@ -148,7 +151,10 @@ def prepare_detect(cfg: dict) -> Path:
     roots = []
     for i, ds in enumerate(cfg["datasets"]):
         dest = base / f"src{i}"
-        if ds["type"] == "roboflow":
+        if (Path(dest) / "data.yaml").exists():
+            print(f"[skip-download] {dest} already present, reusing it")
+            loc = str(dest)
+        elif ds["type"] == "roboflow":
             loc = download_roboflow(ds["workspace"], ds["project"], str(dest))
         elif ds["type"] == "kaggle":
             loc = download_kaggle(ds["slug"], str(dest))

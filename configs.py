@@ -51,10 +51,12 @@ CONFIGS = {
         # merge maps every raw class-name (lowercased) to a unified class
         "unified": ["streetlight", "damaged_light"],
         "merge_names": {
-            "light": "streetlight", "streetlight": "streetlight", "street-light": "streetlight",
-            "sodium": "streetlight", "lamp": "streetlight", "on": "streetlight",
-            "damaged": "damaged_light", "damaged-light": "damaged_light",
-            "broken": "damaged_light", "off": "damaged_light", "fault": "damaged_light",
+            # working / on lights -> streetlight
+            "working": "streetlight", "sodium_on": "streetlight", "on": "streetlight",
+            "light": "streetlight", "streetlight": "streetlight", "lamp": "streetlight",
+            # not working / off lights -> damaged_light (this IS the OFF-state class)
+            "not working": "damaged_light", "sodium_off": "damaged_light",
+            "off": "damaged_light", "damaged": "damaged_light", "broken": "damaged_light",
         },
         "single_class": None,
         "model": "yolo11l.pt",
