@@ -79,7 +79,7 @@ CONFIGS = {
     "accidents": {
         "task": "classify",       # accident vs no_accident from video frames
         "datasets": [
-            {"type": "kaggle", "slug": "picekl/accident"},
+            {"type": "kaggle", "slug": "ckay16/accident-detection-from-cctv-footage"},
         ],
         # High-accuracy config for the H200: largest classifier, larger images,
         # more epochs, and more frames per video for a bigger training set.
