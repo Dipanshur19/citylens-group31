@@ -46,8 +46,9 @@ def mask_to_boxes(mask_path: Path, min_area_frac: float = 0.001):
     if m is None:
         return []
     h, w = m.shape[:2]
-    # threshold at 127 (not 0) so JPG compression artifacts near edges are ignored
-    _, binm = cv2.threshold(m, 127, 255, cv2.THRESH_BINARY)
+    # background is a clean 0; the animal is the bright foreground. Threshold low
+    # (20) to capture the FULL silhouette while ignoring minor JPG noise (~1-14).
+    _, binm = cv2.threshold(m, 20, 255, cv2.THRESH_BINARY)
     contours, _ = cv2.findContours(binm, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     min_area = min_area_frac * w * h
     boxes = []
