@@ -81,10 +81,10 @@ CONFIGS = {
         "datasets": [
             {"type": "kaggle", "slug": "ckay16/accident-detection-from-cctv-footage"},
         ],
-        # High-accuracy config for the H200: largest classifier, larger images,
-        # more epochs, and more frames per video for a bigger training set.
-        "model": "yolo11x-cls.pt",
-        "epochs": 80, "imgsz": 320, "batch": 128, "patience": 20, "cache": True,
+        # High-accuracy config for the H200. Mid-size model + higher resolution
+        # + regularization generalises better on this smaller dataset than yolo11x.
+        "model": "yolo11l-cls.pt",
+        "epochs": 150, "imgsz": 384, "batch": 128, "patience": 30, "cache": True,
         "frame_stride": 8, "max_frames_per_video": 40,
     },
 }

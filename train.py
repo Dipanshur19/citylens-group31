@@ -85,6 +85,8 @@ def train_category(category: str, data_override: str = None, **overrides):
         common.update(close_mosaic=15, mixup=0.1, copy_paste=0.1)
         if "fraction" in cfg:
             common["fraction"] = cfg["fraction"]
+    else:  # classify: add regularization + augmentation to fight overfitting
+        common.update(dropout=0.2, erasing=0.5, degrees=10.0, fliplr=0.5)
 
     results = model.train(**common)
     run_dir = Path(results.save_dir)
