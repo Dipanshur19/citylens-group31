@@ -65,12 +65,14 @@ def _export_predictions(weights: Path, source: str, out_dir: Path, names):
     print(f"[predict] {len(rows)} detections -> {csv_path}")
 
 
-def train_category(category: str, **overrides):
+def train_category(category: str, data_override: str = None, **overrides):
     from ultralytics import YOLO
 
     cfg = get_config(category, **overrides)
     print(f"\n=== TRAINING: {category} ({cfg['task']}) on {cfg['model']} ===")
-    data = prepare(category)
+    data = data_override or prepare(category)
+    if data_override:
+        print(f"[data] using local dataset override -> {data}")
 
     model = YOLO(cfg["model"])
     common = dict(
@@ -116,6 +118,7 @@ if __name__ == "__main__":
     ap.add_argument("--all", action="store_true", help="train every category")
     ap.add_argument("--model"); ap.add_argument("--epochs", type=int)
     ap.add_argument("--batch", type=int); ap.add_argument("--imgsz", type=int)
+    ap.add_argument("--data", help="path to a local data.yaml (skips auto-download)")
     args = ap.parse_args()
 
     overrides = dict(model=args.model, epochs=args.epochs, batch=args.batch, imgsz=args.imgsz)
@@ -123,6 +126,6 @@ if __name__ == "__main__":
         for cat in CONFIGS:
             train_category(cat, **overrides)
     elif args.category:
-        train_category(args.category, **overrides)
+        train_category(args.category, data_override=args.data, **overrides)
     else:
         ap.error("pass --category <name> or --all")
