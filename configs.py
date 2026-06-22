@@ -51,19 +51,19 @@ CONFIGS = {
             {"type": "roboflow", "workspace": "godspeed-yqpeo", "project": "damaged-lights"},
             {"type": "roboflow", "workspace": "streetlight-detection", "project": "sodioum-only-jkq3f"},
         ],
-        # merge maps every raw class-name (lowercased) to a unified class
-        "unified": ["streetlight", "damaged_light"],
+        # Single unified class: detect ALL street lights (easier task, more
+        # instances -> higher mAP). ON/OFF + flickering come from the brightness
+        # analytic in src/analytics/streetlight_state.py, not the detector.
+        "unified": ["streetlight"],
         "merge_names": {
-            # working / on lights -> streetlight
             "working": "streetlight", "sodium_on": "streetlight", "on": "streetlight",
+            "not working": "streetlight", "sodium_off": "streetlight", "off": "streetlight",
             "light": "streetlight", "streetlight": "streetlight", "lamp": "streetlight",
-            # not working / off lights -> damaged_light (this IS the OFF-state class)
-            "not working": "damaged_light", "sodium_off": "damaged_light",
-            "off": "damaged_light", "damaged": "damaged_light", "broken": "damaged_light",
+            "damaged": "streetlight", "broken": "streetlight",
         },
         "single_class": None,
         "model": "yolo11l.pt",
-        "epochs": 100, "imgsz": 640, "batch": 64, "patience": 25, "cache": True,
+        "epochs": 100, "imgsz": 768, "batch": 32, "patience": 25, "cache": True,
     },
     # ----------------------------------------------------------------- 10% ---
     "stray_animals": {
