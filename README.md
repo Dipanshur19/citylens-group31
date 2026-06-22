@@ -71,13 +71,13 @@ citylens-group31/
 
 Detection categories report **mAP@50**; the accident model reports **top-1 accuracy**.
 
-| Category | Weight | Model | Metric | Score | Prize bar (>85%) |
-|----------|--------|-------|--------|-------|------------------|
-| Fire & Smoke      | 40% | yolo11x (single-class) | mAP@50 | **0.871** |  |
-| Collapsed trees   | 20% | yolov8m | mAP@50 | **0.878** | pass |
-| Street lights     | 20% | yolo11l (2-class) | mAP@50 (overall) | **0.730** |  data-limited¹ |
-| Accidents         | 10% | yolo11l-cls | top-1 acc | **0.889** |  |
-| Stray animals     | 10% | yolo11x | mAP@50 | **0.977** |  |
+| Category | Weight | Model | Metric | Score |
+|----------|--------|-------|--------|-------|
+| Fire & Smoke      | 40% | yolo11x (single-class) | mAP@50 | **0.871** |
+| Collapsed trees   | 20% | yolov8m | mAP@50 | **0.878** |
+| Street lights     | 20% | yolo11l (2-class) | mAP@50 (overall) | **0.730** |
+| Accidents         | 10% | yolo11l-cls | top-1 acc | **0.889** |
+| Stray animals     | 10% | yolo11x | mAP@50 | **0.977** |
 
 **Weighted average ≈ 0.857** (clears the 85% overall minimum).
 
@@ -88,4 +88,4 @@ in `src/analytics/streetlight_state.py`.
 > Full training workflow on the H200: see `SETUP_GPU.md`. Kaggle workflow: `GUIDE.md`.
 
 ## Team — Group 31
-Aryan Gupta · Udit Choudhary · Ashish Bairwa · Ayush Kiran Badgujar · Dipanshu Raj
+Dipanshu Raj. Aryan Gupta · Udit Choudhary · Ashish Bairwa · Ayush Kiran Badgujar 
