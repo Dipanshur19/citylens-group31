@@ -61,7 +61,7 @@ citylens-group31/
 ## Model Architecture (summary for judges)
 
 - **Framework:** Ultralytics YOLO11, COCO-pretrained, fine-tuned per category.
-- **Detectors:** `yolo11x` (fire, trees, animals), `yolo11l` (street lights).
+- **Detectors:** `yolo11x` (fire, animals), `yolov8m` (collapsed trees), `yolo11l` (street lights).
 - **Classifier:** `yolo11l-cls` for accident detection (accident vs no-accident).
 - **Hardware:** trained on a single NVIDIA H200 (143 GB). Input sizes 640–1280px.
 - **Augmentation:** mosaic, mixup, copy-paste, HSV, flips (Ultralytics) + tuned per category.
