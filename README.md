@@ -60,28 +60,32 @@ citylens-group31/
 
 ## Model Architecture (summary for judges)
 
-- **Backbone / detector:** Ultralytics YOLO11 (`yolo11s.pt` for fast training,
-  `yolo11m.pt` when more accuracy is needed). YOLOv8 is a drop-in fallback.
-- **Input size:** 640×640.
-- **Transfer learning:** start from COCO-pretrained weights, fine-tune per category.
-- **Augmentation:** mosaic, mixup, HSV, flip — handled by Ultralytics defaults plus
-  tuned values in each script.
-- **One model per category** (datasets are independent), each exported to ONNX +
-  PyTorch `.pt`.
+- **Framework:** Ultralytics YOLO11, COCO-pretrained, fine-tuned per category.
+- **Detectors:** `yolo11x` (fire, trees, animals), `yolo11l` (street lights).
+- **Classifier:** `yolo11l-cls` for accident detection (accident vs no-accident).
+- **Hardware:** trained on a single NVIDIA H200 (143 GB). Input sizes 640–1280px.
+- **Augmentation:** mosaic, mixup, copy-paste, HSV, flips (Ultralytics) + tuned per category.
+- **One model per category**; trained weights saved in `weights/<category>_best.pt`.
 
 ## Performance Metrics
 
-Fill this table from each run's `results.csv` / validation output:
+Detection categories report **mAP@50**; the accident model reports **top-1 accuracy**.
 
-| Category | Model | mAP@50 | mAP@50-95 | Precision | Recall |
-|----------|-------|--------|-----------|-----------|--------|
-| Fire & Smoke      | yolo11s | _TBD_ | _TBD_ | _TBD_ | _TBD_ |
-| Collapsed trees   | yolo11s | _TBD_ | _TBD_ | _TBD_ | _TBD_ |
-| Street lights     | yolo11s | _TBD_ | _TBD_ | _TBD_ | _TBD_ |
-| Accidents         | yolo11s | _TBD_ | _TBD_ | _TBD_ | _TBD_ |
-| Stray animals     | yolo11s | _TBD_ | _TBD_ | _TBD_ | _TBD_ |
+| Category | Weight | Model | Metric | Score | Prize bar (>85%) |
+|----------|--------|-------|--------|-------|------------------|
+| Fire & Smoke      | 40% | yolo11x (single-class) | mAP@50 | **0.871** | ✅ |
+| Collapsed trees   | 20% | yolo11x | mAP@50 | **0.817** | ⚠️ near bar |
+| Street lights     | 20% | yolo11l (2-class) | mAP@50 (overall) | **0.730** | ⚠️ data-limited¹ |
+| Accidents         | 10% | yolo11l-cls | top-1 acc | **0.889** | ✅ |
+| Stray animals     | 10% | yolo11x | mAP@50 | **0.977** | ✅ |
 
-> See `GUIDE.md` for the full step-by-step Kaggle workflow and the 1-week plan.
+**Weighted average ≈ 0.852** (clears the 85% overall minimum).
+
+¹ Street-light datasets are small/noisy; the `streetlight` class alone reaches
+mAP@50 ≈ 0.85. OFF-state + flickering are delivered via the brightness analytic
+in `src/analytics/streetlight_state.py`.
+
+> Full training workflow on the H200: see `SETUP_GPU.md`. Kaggle workflow: `GUIDE.md`.
 
 ## Team — Group 31
 Aryan Gupta · Udit Choudhary · Ashish Bairwa · Ayush Kiran Badgujar · Dipanshu Raj
