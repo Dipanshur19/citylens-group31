@@ -37,19 +37,19 @@ imgs = (glob.glob(str(SRC / "**" / "*.jpg"), recursive=True)
 print(f"classifying {len(imgs)} frames ...")
 
 rows = []
-for r in model.predict(source=imgs, imgsz=384, stream=True, verbose=False):
-    name = Path(r.path).name
-    top = int(r.probs.top1)
+for p in imgs:
+    res = model.predict(source=p, imgsz=384, verbose=False)[0]
+    top = int(res.probs.top1)
     cls = model.names[top]
-    conf = float(r.probs.top1conf)
+    conf = float(res.probs.top1conf)
 
-    img = cv2.imread(r.path)
+    img = cv2.imread(p)            # use the REAL path, not res.path
     if img is not None:
         color = (0, 0, 255) if cls == "accident" else (0, 170, 0)
         cv2.putText(img, f"{cls} {conf:.2f}", (10, 30),
                     cv2.FONT_HERSHEY_SIMPLEX, 1.0, color, 2)
-        cv2.imwrite(str(OUT / "pred" / name), img)
-    rows.append({"frame": name, "predicted_class": cls, "confidence": round(conf, 4)})
+        cv2.imwrite(str(OUT / "pred" / Path(p).name), img)
+    rows.append({"frame": Path(p).name, "predicted_class": cls, "confidence": round(conf, 4)})
 
 # #5 per-frame predictions CSV
 with open(OUT / "accidents_predictions.csv", "w", newline="") as f:
