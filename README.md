@@ -73,11 +73,11 @@ Detection categories report **mAP@50**; the accident model reports **top-1 accur
 
 | Category | Weight | Model | Metric | Score | Prize bar (>85%) |
 |----------|--------|-------|--------|-------|------------------|
-| Fire & Smoke      | 40% | yolo11x (single-class) | mAP@50 | **0.871** | ✅ |
-| Collapsed trees   | 20% | yolo11x | mAP@50 | **0.817** | ⚠️ near bar |
-| Street lights     | 20% | yolo11l (2-class) | mAP@50 (overall) | **0.730** | ⚠️ data-limited¹ |
-| Accidents         | 10% | yolo11l-cls | top-1 acc | **0.889** | ✅ |
-| Stray animals     | 10% | yolo11x | mAP@50 | **0.977** | ✅ |
+| Fire & Smoke      | 40% | yolo11x (single-class) | mAP@50 | **0.871** |  |
+| Collapsed trees   | 20% | yolo11x | mAP@50 | **0.817** |  near bar |
+| Street lights     | 20% | yolo11l (2-class) | mAP@50 (overall) | **0.730** |  data-limited¹ |
+| Accidents         | 10% | yolo11l-cls | top-1 acc | **0.889** |  |
+| Stray animals     | 10% | yolo11x | mAP@50 | **0.977** |  |
 
 **Weighted average ≈ 0.852** (clears the 85% overall minimum).
 
