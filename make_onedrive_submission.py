@@ -44,7 +44,7 @@ FOLDER = {
 INFO = {
     "fire_smoke": ("YOLO11x (single-class)", "mAP@50", "0.871",
                    "Detects fire & smoke and outputs bounding boxes."),
-    "collapsed_trees": ("YOLO11x", "mAP@50", "0.817",
+    "collapsed_trees": ("YOLOv8m", "mAP@50", "0.878",
                         "Detects fallen trees / road obstructions with bounding boxes."),
     "streetlights": ("YOLO11l", "mAP@50", "0.730",
                      "Detects street lights; OFF-state + flickering via brightness analytic."),
